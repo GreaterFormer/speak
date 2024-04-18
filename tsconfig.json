@@ -4,8 +4,11 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": "./src",
     "paths": {
+      "assets": ["assets"],
+      "layout": ["layout"],
       "routes": ["routes"],
-      "pages": ["pages"]
+      "pages": ["pages"],
+      "theme": ["theme"]
     },
     "allowJs": true,
     "skipLibCheck": true,
