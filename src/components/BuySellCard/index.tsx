@@ -11,11 +11,20 @@ import {
   Space,
   Input,
 } from "antd";
-import { DownOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
+import { DownOutlined, MinusOutlined, PlusOutlined, RedoOutlined } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { setBuyOrSell, fetchOrders, setShowNo } from "store/slices/orderSlice";
+import { BUY, SELL } from "constant";
+import { apis } from "apis";
+import { BigNumberish, formatUnits, parseUnits } from 'ethers';
+import { useLocalStorage } from "usehooks-ts";
+import { RootState } from "store";
+import { roundToTwo } from "utils";
 
-interface BuySellCardProps {}
+interface BuySellCardProps { }
 
-const BuySellCard: React.FC<BuySellCardProps> = ({}) => {
+const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
+  const dispatch = useDispatch();
   const [tab, setTab] = React.useState<string>("BUY");
   const [type, setType] = React.useState<string>("Market");
   const items: MenuProps["items"] = [
@@ -33,6 +42,48 @@ const BuySellCard: React.FC<BuySellCardProps> = ({}) => {
     },
   ];
 
+  const ref = React.useRef<any>(null);
+  const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
+  const { correspondingAddress, publicAddress } = useSelector((state: RootState) => state.userKey);
+  const [currentMoney, setCurrentMoney] = useLocalStorage<number>('currentMoney', 0);
+  const [yesValue, setYesValue] = React.useState(50);
+  const [noValue, setNoValue] = React.useState(50);
+
+  const fetchBalance = (address: string) => {
+    if (address && address != '') {
+      apis.GetBalance(address)
+        .then((response: any) => {
+          const { balance, decimals } = response;
+          setCurrentMoney(Number(formatUnits(balance, Number(decimals))));
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      setCurrentMoney(0);
+    }
+  }
+
+  const refreshOrders = async () => {
+    if (selectedBettingOption)
+      dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption.ipfsUrl }) as any);
+    fetchBalance(correspondingAddress);
+  }
+
+  const onYesButtonClicked = () => {
+    if (ref.current) {
+      // ref.current.value = yesValue;
+    }
+    dispatch(setShowNo(false));
+  }
+
+  const onNoButtonClicked = () => {
+    if (ref.current) {
+      // (ref.current as any).updateInputValue(noValue);
+    }
+    dispatch(setShowNo(true));
+  }
+
   const Content = () => (
     <div style={{ margin: "20px 25px 0px 25px" }}>
       <Flex align="center" justify="space-between">
@@ -40,15 +91,15 @@ const BuySellCard: React.FC<BuySellCardProps> = ({}) => {
           Outcome
         </Typography.Title>
         <Flex>
-          <></>
+          <Button type="text" icon={<RedoOutlined />} onClick={refreshOrders} />
         </Flex>
       </Flex>
       <Flex justify="center" style={{ marginTop: 10 }} gap={10}>
-        <Button type="primary" size="large" style={{ width: "50%" }}>
-          Yes 46¢
+        <Button type="primary" size="large" style={{ width: "50%" }} onClick={() => onYesButtonClicked()}>
+          Yes {roundToTwo(yesValue)}¢
         </Button>
-        <Button size="large" style={{ width: "50%", backgroundColor: "black" }}>
-          No 55¢
+        <Button size="large" style={{ width: "50%", backgroundColor: "black" }} onClick={() => onNoButtonClicked()}>
+          No {roundToTwo(noValue)}¢
         </Button>
       </Flex>
 
@@ -58,6 +109,7 @@ const BuySellCard: React.FC<BuySellCardProps> = ({}) => {
       <Flex vertical gap={10}>
         <Input
           size="large"
+          ref={ref}
           addonBefore={<MinusOutlined style={{ cursor: "pointer" }} />}
           addonAfter={<PlusOutlined style={{ cursor: "pointer" }} />}
           defaultValue={0}
@@ -123,7 +175,14 @@ const BuySellCard: React.FC<BuySellCardProps> = ({}) => {
       </Flex>
       <Tabs
         activeKey={tab}
-        onChange={(key: string) => setTab(key)}
+        onChange={(key: string) => {
+          setTab(key);
+          if (key === "BUY") {
+            dispatch(setBuyOrSell(BUY))
+          } else if (key === "SELL") {
+            dispatch(setBuyOrSell(SELL))
+          }
+        }}
         size="large"
         tabBarStyle={{
           padding: "5px 25px 0px 25px",

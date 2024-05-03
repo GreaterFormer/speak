@@ -8,7 +8,9 @@
       "layout": ["layout"],
       "routes": ["routes"],
       "pages": ["pages"],
-      "theme": ["theme"]
+      "theme": ["theme"],
+      "store": ["store"],
+      "constant": ["constant"]
     },
     "allowJs": true,
     "skipLibCheck": true,

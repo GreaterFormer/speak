@@ -5,6 +5,8 @@ import AppLayout from "layout";
 
 // Pages
 import Home from "pages/Home";
+import Markets from "pages/Markets";
+import Event from "pages/Event";
 
 const AppRouter = () => {
   return (
@@ -18,6 +20,19 @@ const AppRouter = () => {
             </AppLayout>
           }
         />
+        <Route
+          path="markets"
+          element={
+            <AppLayout>
+              <Markets />
+            </AppLayout>
+          }
+        />
+        <Route path="events/:ipfsUrl" element={
+          <AppLayout>
+            <Event />
+          </AppLayout>
+        } />
       </Routes>
     </Router>
   );

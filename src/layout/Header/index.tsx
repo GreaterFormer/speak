@@ -1,4 +1,4 @@
-import { Layout, Flex, Input, Button, Divider } from "antd";
+import { Layout, Flex, Input, Button, Divider, Tooltip } from "antd";
 import Icon, { SearchOutlined } from "@ant-design/icons";
 
 // Assets
@@ -8,6 +8,7 @@ import { ReactComponent as CupSvg } from "assets/images/svgs/cup.svg";
 import { ReactComponent as FlagSvg } from "assets/images/svgs/flag.svg";
 import { ReactComponent as GridSvg } from "assets/images/svgs/grid.svg";
 import { ReactComponent as WaveSvg } from "assets/images/svgs/wave.svg";
+import { Link } from "react-router-dom";
 
 const { Header, Content } = Layout;
 
@@ -27,6 +28,7 @@ const navItems = [
 ];
 
 const AppHeader = () => {
+
   return (
     <>
       <Header
@@ -42,10 +44,12 @@ const AppHeader = () => {
         >
           <Flex justify="space-between" align="center">
             <Flex gap={40}>
-              <Flex gap={5}>
-                <img src={Logo} height={45} alt="logo" />
-                <img src={LogoTitle} height={45} alt="logo-title" />
-              </Flex>
+              <Link to="/" style={{ lineHeight: 0 }}>
+                <Flex gap={5}>
+                  <img src={Logo} height={45} alt="logo" />
+                  <img src={LogoTitle} height={45} alt="logo-title" />
+                </Flex>
+              </Link>
               <Input
                 size="small"
                 placeholder="Search Markets"
@@ -64,11 +68,21 @@ const AppHeader = () => {
               />
             </Flex>
             <Flex gap={20} align="center">
-              <Flex gap={10}>
-                <Button icon={<Icon component={CupSvg} />} />
-                <Button icon={<Icon component={FlagSvg} />} />
-                <Button icon={<Icon component={GridSvg} />} />
-                <Button icon={<Icon component={WaveSvg} />} />
+              <Flex gap={10} align="center">
+                <Tooltip title="Ranks">
+                  <Button icon={<Icon component={CupSvg} />} />
+                </Tooltip>
+                <Tooltip title="Election">
+                  <Button icon={<Icon component={FlagSvg} />} />
+                </Tooltip>
+                <Link to="/markets" style={{ lineHeight: 0 }}>
+                  <Tooltip title="Markets">
+                    <Button icon={<Icon component={GridSvg} />} />
+                  </Tooltip>
+                </Link>
+                <Tooltip title="Activity">
+                  <Button icon={<Icon component={WaveSvg} />} />
+                </Tooltip>
               </Flex>
               <Flex gap={10} align="center">
                 <Button
