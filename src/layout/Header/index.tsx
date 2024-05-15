@@ -9,6 +9,7 @@ import { ReactComponent as FlagSvg } from "assets/images/svgs/flag.svg";
 import { ReactComponent as GridSvg } from "assets/images/svgs/grid.svg";
 import { ReactComponent as WaveSvg } from "assets/images/svgs/wave.svg";
 import { Link } from "react-router-dom";
+import LoginModal from "components/Modals/LoginModal";
 
 const { Header, Content } = Layout;
 
@@ -115,6 +116,7 @@ const AppHeader = () => {
         ))}
       </Flex>
       <Divider style={{ margin: 0, borderColor: "#444", borderWidth: 1 }} />
+      <LoginModal />
     </>
   );
 };

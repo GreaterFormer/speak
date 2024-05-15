@@ -42,12 +42,14 @@ const GetEvents = () => API.get("/events/publishedUrls");
 const GetOrders = (bettingOptionUrl: string) => API.get(`/orders?bettingOptionUrl=${bettingOptionUrl}`);
 const GetBalance = (address: string) => API.get(`/contract/balance/${address}`);
 const GetTokenIds = (ipfsUrl: string) => API.get(`/contract/getTokenIds/${ipfsUrl}`);
-const GetEventLogs = (ipfsUrl: string) => API.get(`/contract/getEventLogsFor/${ipfsUrl}/OrderFilled`)
+const GetEventLogs = (ipfsUrl: string) => API.get(`/contract/getEventLogsFor/${ipfsUrl}/OrderFilled`);
+const GetUser = (address: string) => API.get(`/users?publicAddress=${address}`);
 
 export const apis = {
     GetEvents,
     GetOrders,
     GetBalance,
     GetTokenIds,
-    GetEventLogs
+    GetEventLogs,
+    GetUser
 };

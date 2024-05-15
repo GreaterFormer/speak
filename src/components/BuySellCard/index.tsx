@@ -21,6 +21,8 @@ import { useLocalStorage } from "usehooks-ts";
 import { RootState } from "store";
 import { roundToTwo } from "utils";
 import { colors } from "theme";
+import store from "store";
+import { setOpenLoginModal } from "store/slices/appSlice";
 
 interface BuySellCardProps { }
 
@@ -45,6 +47,7 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
   const [currentMoney, setCurrentMoney] = useLocalStorage<number>('currentMoney', 0);
   const [yesValue, setYesValue] = React.useState(50);
   const [noValue, setNoValue] = React.useState(50);
+  const [limitPrice, setLimitPrice] = React.useState(0);
 
   const fetchBalance = (address: string) => {
     if (address && address != '') {
@@ -100,7 +103,7 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
         </Button>
       </Flex>
       <Flex align="center" justify="space-between" style={{ marginTop: 20 }}>
-        <Typography.Title level={5} style={{ margin: 0, color: colors.pink}}>
+        <Typography.Title level={5} style={{ margin: 0, color: colors.pink }}>
           0 Shares
         </Typography.Title>
         <Typography.Title level={5} style={{ margin: 0 }}>
@@ -113,7 +116,7 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
           Limit Price
         </Typography.Title>
         {
-          tab === "BUY" ? 
+          tab === "BUY" ?
             <Typography.Title level={5} style={{ margin: "20px 0px 10px 0px" }}>
               Balance: 0
             </Typography.Title>
@@ -124,9 +127,9 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
         <Input
           size="large"
           ref={ref}
-          addonBefore={<MinusOutlined style={{ cursor: "pointer" }} />}
-          addonAfter={<PlusOutlined style={{ cursor: "pointer" }} />}
-          defaultValue={0}
+          addonBefore={<Button type="text" icon={<MinusOutlined />} onClick={() => { if (limitPrice > 0) setLimitPrice(limitPrice - 1) }} style={{ margin: 0 }} />}
+          addonAfter={<Button type="text" icon={<PlusOutlined />} onClick={() => { setLimitPrice(limitPrice + 1) }} style={{ margin: 0 }} />}
+          value={limitPrice}
           style={{
             textAlign: "center",
           }}
@@ -138,7 +141,6 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
       <Flex vertical gap={10}>
         <Input
           size="large"
-          ref={ref}
           addonBefore={<MinusOutlined style={{ cursor: "pointer" }} />}
           addonAfter={<PlusOutlined style={{ cursor: "pointer" }} />}
           defaultValue={0}
@@ -146,7 +148,7 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
             textAlign: "center",
           }}
         />
-        <Button type="primary" size="large" style={{ marginTop: 20 }}>
+        <Button type="primary" size="large" style={{ marginTop: 20 }} onClick={() => store.dispatch(setOpenLoginModal(true))}>
           Log In
         </Button>
       </Flex>
@@ -161,16 +163,16 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
           </Typography.Title>
         </Flex>
         {
-          tab === "BUY" ? 
-          <Flex justify="space-between">
-            <Typography.Title level={5} style={{ margin: 0 }}>
-              Potential Return
-            </Typography.Title>
-            <Typography.Title level={5} style={{ margin: 0 }}>
-              $0.00 (0.00%)
-            </Typography.Title>
-          </Flex>
-          : null
+          tab === "BUY" ?
+            <Flex justify="space-between">
+              <Typography.Title level={5} style={{ margin: 0 }}>
+                Potential Return
+              </Typography.Title>
+              <Typography.Title level={5} style={{ margin: 0 }}>
+                $0.00 (0.00%)
+              </Typography.Title>
+            </Flex>
+            : null
         }
       </Flex>
     </div>

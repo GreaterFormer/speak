@@ -4,8 +4,10 @@ import categorySlice from "./slices/categorySlice";
 import filterSlice from "./slices/filterSlice";
 import eventSlice from "./slices/eventSlice";
 import orderSlice from "./slices/orderSlice";
+import appSlice from "./slices/appSlice";
 
 const rootReducer = combineReducers({
+  appKey: appSlice,
   userKey: userSlice,
   categoryKey: categorySlice,
   filterKey: filterSlice,
