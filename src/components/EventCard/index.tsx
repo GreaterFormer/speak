@@ -1,59 +1,57 @@
-import React from "react";
-import { Flex, Card, Avatar, Typography, Button, Row, Col } from "antd";
+import React, { useEffect } from "react";
+import { Flex, Card, Avatar, Typography, Button, Divider, Row, Col } from "antd";
+
 import Icon, {
   ClockCircleOutlined,
   StarOutlined,
   LinkOutlined,
   DollarOutlined,
+  UpOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
+import { selectBettingOption } from "store/slices/eventSlice";
+import { fetchOrders, setBettingOptionLogs } from "store/slices/orderSlice";
+import { apis } from "apis";
+
+import ChartArea from "./ChartArea";
 
 // Assets
 import Logo from "assets/images/logo.png";
 import LogoTitle from "assets/images/logo-title.png";
 import { ReactComponent as CupSvg } from "assets/images/svgs/cup.svg";
 import { colors } from "theme";
+import { useDispatch, useSelector } from "react-redux";
 
-const rowStyle = {
-  borderTop: "1px solid #444",
-  borderBottom: "1px solid #444",
-};
+import { RootState } from "store";
+import OrderBook from "./OrderBook";
 
-const data = [
-  {
-    avatar:
-      "https://polymarket.com/_next/image?url=https%3A%2F%2Fpolymarket-upload.s3.us-east-2.amazonaws.com%2Fceltics.png&w=256&q=100",
-    name: "Boston Celtics",
-    percent: 35,
-    amount: 31233,
-  },
-  {
-    avatar:
-      "https://polymarket.com/_next/image?url=https%3A%2F%2Fpolymarket-upload.s3.us-east-2.amazonaws.com%2Fceltics.png&w=256&q=100",
-    name: "Milwaukee Bucks",
-    percent: 6,
-    amount: 3123,
-  },
-  {
-    avatar:
-      "https://polymarket.com/_next/image?url=https%3A%2F%2Fpolymarket-upload.s3.us-east-2.amazonaws.com%2Fceltics.png&w=256&q=100",
-    name: "Boston Celtics",
-    percent: 4,
-    amount: 51233,
-  },
-  {
-    avatar:
-      "https://polymarket.com/_next/image?url=https%3A%2F%2Fpolymarket-upload.s3.us-east-2.amazonaws.com%2Fceltics.png&w=256&q=100",
-    name: "Boston Celtics",
-    percent: 2,
-    amount: 3133,
-  },
-];
+// const rowStyle = {
+//   borderTop: "1px solid #444",
+//   borderBottom: "1px solid #444",
+// };
 
-interface MarketListProps {}
+// const data = [
+//   {
+//     avatar:
+//       "https://polymarket.com/_next/image?url=https%3A%2F%2Fpolymarket-upload.s3.us-east-2.amazonaws.com%2Fceltics.png&w=256&q=100",
+//     name: "Boston Celtics",
+//     percent: 35,
+//     amount: 31233,
+//   },
+// ];
 
-const MarketList: React.FC<MarketListProps> = ({}) => {
+interface MarketListProps {
+  eventInfo: any
+}
+
+const MarketList: React.FC<MarketListProps> = ({ eventInfo }) => {
+  const dispatch = useDispatch();
   const [hoverIndex, setHoverIndex] = React.useState(-1);
   const [currentIndex, setCurrentIndex] = React.useState(-1);
+
+  const [moreOrLessSwitch, setMoreOrLessSwitch] = React.useState(true);
+  const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
+  const { orders } = useSelector((state: RootState) => state.orderKey);
 
   const MarketItem = ({
     avatar,
@@ -80,6 +78,30 @@ const MarketList: React.FC<MarketListProps> = ({}) => {
     </Flex>
   );
 
+  useEffect(() => {
+    if (selectedBettingOption) {
+      dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption.ipfsUrl }) as any);
+    }
+  }, [selectedBettingOption])
+
+
+  useEffect(() => {
+    async function getResult() {
+      if (selectedBettingOption) {
+        // once bettingOption selected, then need to calculate tokenId for yes and no tokens.
+        const response: any = await apis.GetEventLogs(selectedBettingOption.ipfsUrl);
+        dispatch(setBettingOptionLogs(response.extractedLogs));
+      }
+    }
+    getResult();
+  }, [selectedBettingOption, orders]);
+
+  useEffect(() => {
+    if (eventInfo) {
+      dispatch(selectBettingOption(eventInfo.bettingOptions[0]) as any);
+    }
+  }, [eventInfo])
+
   return (
     <Card
       style={{ maxWidth: 800, width: "100%", padding: "30px 25px" }}
@@ -89,22 +111,23 @@ const MarketList: React.FC<MarketListProps> = ({}) => {
     >
       <Flex justify="space-between" align="center">
         <Flex justify="space-between" align="center" gap={15}>
-          <Avatar
+          {eventInfo ? <Avatar
             shape="square"
             size={72}
-            src="https://polymarket.com/_next/image?url=https%3A%2F%2Fpolymarket-upload.s3.us-east-2.amazonaws.com%2Fnba-champi_dee388fd5a61b48bfda70334b5a02837_256x256.webp&w=256&q=100"
-          />
+            src={`https://gateway.pinata.cloud/ipfs/${eventInfo.image}`}
+          /> : null}
           <Flex vertical gap={5}>
             <Flex align="center" gap={15}>
+              <Typography.Text>{eventInfo?.category}</Typography.Text>
               <Icon component={CupSvg} />
-              <Typography.Text>$425,904 Bet</Typography.Text>
+              <Typography.Text>${eventInfo?.bettingOptions.reduce((sum: any, bettingOption: { bet: any; }) => sum + bettingOption.bet, 0)} Bet</Typography.Text>
               <Flex align="center" gap={5}>
                 <ClockCircleOutlined />
-                <Typography.Text>Jun 6, 2024</Typography.Text>
+                <Typography.Text>Expires {new Date(eventInfo?.endDate).toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })}</Typography.Text>
               </Flex>
             </Flex>
             <Typography.Title level={3} style={{ margin: 0 }}>
-              NBA Champion
+              {eventInfo?.title}
             </Typography.Title>
           </Flex>
         </Flex>
@@ -120,19 +143,15 @@ const MarketList: React.FC<MarketListProps> = ({}) => {
           </Flex>
         </Flex>
       </Flex>
-      <Row style={{ marginTop: 20 }}>
-        <Col span={8} style={{ ...rowStyle, padding: "10px 0px" }}>
-          <Typography.Text>OUTCOME</Typography.Text>
-        </Col>
-        <Col
-          span={8}
-          style={{ ...rowStyle, padding: "10px 0px", textAlign: "center" }}
-        >
-          <Typography.Text>% CHANCE</Typography.Text>
-        </Col>
-        <Col span={8} style={{ ...rowStyle, padding: "10px 0px" }}></Col>
-      </Row>
-      {data.map((item, index) => (
+
+      <ChartArea />
+      {/* <Positions /> */}
+      {/* <MyOrders /> */}
+
+      <Divider orientation="left">Order Book</Divider>
+      <OrderBook />
+
+      {/* {data.map((item, index) => (
         <Row
           key={index}
           onClick={() => {
@@ -192,7 +211,21 @@ const MarketList: React.FC<MarketListProps> = ({}) => {
             Content
           </Col>
         </Row>
-      ))}
+      ))} */}
+
+      <Flex vertical justify="center" gap={5} style={{ marginTop: 20 }}>
+        <Divider orientation="left">About</Divider>
+        {
+          moreOrLessSwitch ? (<Typography.Text style={{ maxHeight: '2.5rem', overflow: 'hidden' }}>
+            {eventInfo?.detail}
+          </Typography.Text>) : (<Typography.Text>
+            {eventInfo?.detail}
+          </Typography.Text>)
+        }
+
+        <Button type="text" onClick={() => setMoreOrLessSwitch(!moreOrLessSwitch)}>Show {moreOrLessSwitch ? "more" : "less"} {moreOrLessSwitch ? <DownOutlined /> : <UpOutlined />}</Button>
+      </Flex>
+
     </Card>
   );
 };

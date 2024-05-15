@@ -4,17 +4,20 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": "./src",
     "paths": {
+      "artifacts": ["artifacts"],
       "assets": ["assets"],
       "layout": ["layout"],
       "routes": ["routes"],
       "pages": ["pages"],
       "theme": ["theme"],
       "store": ["store"],
-      "constant": ["constant"]
+      "constant": ["constant"],
+      "utils": ["utils"]
     },
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,

@@ -1,14 +1,14 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import userSlice from "./slices/userSlice";
-// import categorySlice from "../feature/slices/categorySlice";
-// import filterSlice from "../feature/slices/filterSlice";
+import categorySlice from "./slices/categorySlice";
+import filterSlice from "./slices/filterSlice";
 import eventSlice from "./slices/eventSlice";
 import orderSlice from "./slices/orderSlice";
 
 const rootReducer = combineReducers({
   userKey: userSlice,
-  //   categoryKey: categorySlice,
-  //   filterKey: filterSlice,
+  categoryKey: categorySlice,
+  filterKey: filterSlice,
   eventKey: eventSlice,
   orderKey: orderSlice,
 });

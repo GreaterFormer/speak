@@ -1,14 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { BettingOptionInfo, PublishedEventInfo } from "../../types";
+import { apis } from "apis";
 
 export const selectBettingOption = createAsyncThunk(
     'event/selectBettingOption',
     async (payload: any) => {
         const { ipfsUrl, ...otherProperties } = payload;
         try {
-            //   const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getTokenIds/${ipfsUrl}`);
-            //   const { yesTokenId, noTokenId } = await response.json();
-            //   return { ipfsUrl, yesTokenId, noTokenId, ...otherProperties };
+            const response: any = await apis.GetTokenIds(ipfsUrl);
+            const { yesTokenId, noTokenId } = response;
+            return { ipfsUrl, yesTokenId, noTokenId, ...otherProperties };
         } catch (error) {
             console.error(error);
             return error;
@@ -34,7 +35,7 @@ export const eventSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder.addCase(selectBettingOption.fulfilled, (state, action) => {
-            // state.selectedBettingOption = { ...action.payload };
+            state.selectedBettingOption = { ...action.payload };
         });
     },
 });

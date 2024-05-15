@@ -30,7 +30,7 @@ const Markets = () => {
                     const { data } = res;
                     item.title = data.title;
                     item.detail = data.detail;
-                    item.image = data.detail;
+                    item.image = data.image;
                     item.category = data.category;
                     item.endDate = data.endDate;
                     getBettingOptionsPromise(data)
@@ -43,7 +43,7 @@ const Markets = () => {
                 console.log(err);
             }
         }
-        getEvents()
+        getEvents();
     }, []);
 
     React.useEffect(() => {

@@ -20,25 +20,22 @@ import { BigNumberish, formatUnits, parseUnits } from 'ethers';
 import { useLocalStorage } from "usehooks-ts";
 import { RootState } from "store";
 import { roundToTwo } from "utils";
+import { colors } from "theme";
 
 interface BuySellCardProps { }
 
 const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
   const dispatch = useDispatch();
   const [tab, setTab] = React.useState<string>("BUY");
-  const [type, setType] = React.useState<string>("Market");
+  const [type, setType] = React.useState<string>("Limit");
   const items: MenuProps["items"] = [
     {
       key: "1",
-      label: <Space onClick={() => setType("Market")}>Market</Space>,
-    },
-    {
-      key: "2",
       label: <Space onClick={() => setType("Limit")}>Limit</Space>,
     },
     {
-      key: "3",
-      label: <Space onClick={() => setType("AMM")}>AMM</Space>,
+      key: "2",
+      label: <Space onClick={() => setType("Market")}>Market</Space>,
     },
   ];
 
@@ -102,9 +99,41 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
           No {roundToTwo(noValue)}¢
         </Button>
       </Flex>
+      <Flex align="center" justify="space-between" style={{ marginTop: 20 }}>
+        <Typography.Title level={5} style={{ margin: 0, color: colors.pink}}>
+          0 Shares
+        </Typography.Title>
+        <Typography.Title level={5} style={{ margin: 0 }}>
+          0 Shares
+        </Typography.Title>
+      </Flex>
 
-      <Typography.Title level={4} style={{ margin: "20px 0px 10px 0px" }}>
-        Amount
+      <Flex align="center" justify="space-between">
+        <Typography.Title level={5} style={{ margin: "20px 0px 10px 0px" }}>
+          Limit Price
+        </Typography.Title>
+        {
+          tab === "BUY" ? 
+            <Typography.Title level={5} style={{ margin: "20px 0px 10px 0px" }}>
+              Balance: 0
+            </Typography.Title>
+            : null
+        }
+      </Flex>
+      <Flex vertical gap={10}>
+        <Input
+          size="large"
+          ref={ref}
+          addonBefore={<MinusOutlined style={{ cursor: "pointer" }} />}
+          addonAfter={<PlusOutlined style={{ cursor: "pointer" }} />}
+          defaultValue={0}
+          style={{
+            textAlign: "center",
+          }}
+        />
+      </Flex>
+      <Typography.Title level={5} style={{ margin: "20px 0px 10px 0px" }}>
+        Shares
       </Typography.Title>
       <Flex vertical gap={10}>
         <Input
@@ -117,36 +146,32 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
             textAlign: "center",
           }}
         />
-        <Button type="primary" size="large">
+        <Button type="primary" size="large" style={{ marginTop: 20 }}>
           Log In
         </Button>
       </Flex>
 
-      <Flex vertical style={{ marginTop: 10 }}>
+      <Flex vertical style={{ marginTop: 20 }}>
         <Flex justify="space-between">
           <Typography.Title level={5} style={{ margin: 0 }}>
-            Avg price
+            Total
           </Typography.Title>
           <Typography.Title level={5} style={{ margin: 0 }}>
-            0¢
+            $ 0
           </Typography.Title>
         </Flex>
-        <Flex justify="space-between">
-          <Typography.Title level={5} style={{ margin: 0 }}>
-            Shares
-          </Typography.Title>
-          <Typography.Title level={5} style={{ margin: 0 }}>
-            0.00
-          </Typography.Title>
-        </Flex>
-        <Flex justify="space-between">
-          <Typography.Title level={5} style={{ margin: 0 }}>
-            Potential return
-          </Typography.Title>
-          <Typography.Title level={5} style={{ margin: 0 }}>
-            $0.00 (0.00%)
-          </Typography.Title>
-        </Flex>
+        {
+          tab === "BUY" ? 
+          <Flex justify="space-between">
+            <Typography.Title level={5} style={{ margin: 0 }}>
+              Potential Return
+            </Typography.Title>
+            <Typography.Title level={5} style={{ margin: 0 }}>
+              $0.00 (0.00%)
+            </Typography.Title>
+          </Flex>
+          : null
+        }
       </Flex>
     </div>
   );
@@ -164,7 +189,7 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
         },
       }}
     >
-      <Flex align="center" gap={10} style={{ margin: "0px 25px" }}>
+      {/* <Flex align="center" gap={10} style={{ margin: "0px 25px" }}>
         <Avatar
           size={40}
           src="https://polymarket.com/_next/image?url=https%3A%2F%2Fpolymarket-upload.s3.us-east-2.amazonaws.com%2Fceltics.png&w=256&q=100"
@@ -172,7 +197,7 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
         <Typography.Title level={5} style={{ margin: 0 }}>
           Boston Celtics
         </Typography.Title>
-      </Flex>
+      </Flex> */}
       <Tabs
         activeKey={tab}
         onChange={(key: string) => {

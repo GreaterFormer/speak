@@ -41,9 +41,13 @@ API.interceptors.response.use(
 const GetEvents = () => API.get("/events/publishedUrls");
 const GetOrders = (bettingOptionUrl: string) => API.get(`/orders?bettingOptionUrl=${bettingOptionUrl}`);
 const GetBalance = (address: string) => API.get(`/contract/balance/${address}`);
+const GetTokenIds = (ipfsUrl: string) => API.get(`/contract/getTokenIds/${ipfsUrl}`);
+const GetEventLogs = (ipfsUrl: string) => API.get(`/contract/getEventLogsFor/${ipfsUrl}/OrderFilled`)
 
 export const apis = {
     GetEvents,
     GetOrders,
-    GetBalance
+    GetBalance,
+    GetTokenIds,
+    GetEventLogs
 };
