@@ -68,7 +68,7 @@ const Markets = () => {
         }}>
             <Row>
                 {events.map((event: PublishedEventInfo, index: number) => (
-                    <Col key={index} span={4} style={{ padding: 10 }}>
+                    <Col key={index} span={6} style={{ padding: 10 }}>
                         <PublishedEvent event={event} />
                     </Col>
                 ))}

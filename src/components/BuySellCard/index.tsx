@@ -48,6 +48,7 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
   const [yesValue, setYesValue] = React.useState(50);
   const [noValue, setNoValue] = React.useState(50);
   const [limitPrice, setLimitPrice] = React.useState(0);
+  const [sharePrice, setSharePrice] = React.useState(0);
 
   const fetchBalance = (address: string) => {
     if (address && address != '') {
@@ -141,9 +142,9 @@ const BuySellCard: React.FC<BuySellCardProps> = ({ }) => {
       <Flex vertical gap={10}>
         <Input
           size="large"
-          addonBefore={<MinusOutlined style={{ cursor: "pointer" }} />}
-          addonAfter={<PlusOutlined style={{ cursor: "pointer" }} />}
-          defaultValue={0}
+          addonBefore={<Button type="text" icon={<MinusOutlined />} onClick={() => { if (sharePrice > 0) setSharePrice(sharePrice - 1) }} style={{ margin: 0 }} />}
+          addonAfter={<Button type="text" icon={<PlusOutlined />} onClick={() => { setSharePrice(sharePrice + 1) }} style={{ margin: 0 }} />}
+          value={sharePrice}
           style={{
             textAlign: "center",
           }}

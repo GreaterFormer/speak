@@ -9,6 +9,8 @@ import { ReactComponent as FlagSvg } from "assets/images/svgs/flag.svg";
 import { ReactComponent as GridSvg } from "assets/images/svgs/grid.svg";
 import { ReactComponent as WaveSvg } from "assets/images/svgs/wave.svg";
 import { Link } from "react-router-dom";
+import { setOpenLoginModal } from "store/slices/appSlice";
+import store from "store";
 import LoginModal from "components/Modals/LoginModal";
 
 const { Header, Content } = Layout;
@@ -91,6 +93,7 @@ const AppHeader = () => {
                   style={{
                     backgroundColor: "black",
                   }}
+                  onClick={() => store.dispatch(setOpenLoginModal(true))}
                 >
                   Log In
                 </Button>
