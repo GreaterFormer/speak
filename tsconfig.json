@@ -12,7 +12,7 @@
       "theme": ["theme"],
       "store": ["store"],
       "constant": ["constant"],
-      "utils": ["utils"]
+      "utils": ["utils"],
     },
     "allowJs": true,
     "skipLibCheck": true,

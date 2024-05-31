@@ -3,9 +3,9 @@ import { createChart, ColorType, ISeriesApi, UTCTimestamp } from 'lightweight-ch
 import { Flex, Card, Avatar, Typography, Button, Row, Col } from "antd";
 import { useSelector } from "react-redux";
 import { format } from 'date-fns';
-import { RootState } from "../../store";
-import { LogInfo } from "../../types";
-import { roundToTwo } from "../../constant";
+import { RootState } from "store";
+import { LogInfo } from "types";
+import { roundToTwo } from "utils";
 
 export default function ChartArea() {
     const chartContainerRef = useRef<any>(null);
@@ -134,6 +134,8 @@ export default function ChartArea() {
     }, [bettingOptionLogs, yesSeries, noSeries, selectedBettingOption]);
 
     return (
-        <Card ref={chartContainerRef} style={{ marginTop: 20 }} />
+        <Card style={{ width: '100%' }}>
+            <div ref={chartContainerRef}></div>
+        </Card>
     )
 }

@@ -1,15 +1,39 @@
 import { formatUnits } from 'ethers'
 
+export const mergeElements = (arr: any[]) => {
+    const result: any = [];
+    const map = new Map();
+
+    arr.forEach(item => {
+        if (map.has(item.price)) {
+            const existingItem = map.get(item.price);
+            existingItem.shares += item.shares;
+            existingItem.total = existingItem.price * existingItem.shares;
+        } else {
+            map.set(item.price, { ...item, total: item.price * item.shares });
+        }
+    });
+
+    let runningTotal = 0;
+    map.forEach(value => {
+        runningTotal += value.total;
+        value.total = runningTotal;
+        result.push(value);
+    });
+
+    return result;
+}
+
 export const getBettingOptionsPromise = (eventInfo: any) => {
     let promises = [];
     for (let i = 0; i < eventInfo.bettingOptions.length; i++) {
-        const contractPromise1 = fetch(`${process.env.REACT_APP_SERVER_URL}/api/contract/getBetAmountOfBettingOption/${eventInfo.bettingOptions[i]}`)
+        const contractPromise1 = fetch(`${process.env.REACT_APP_BACKEND_URL}/contract/getBetAmountOfBettingOption/${eventInfo.bettingOptions[i]}`)
             .then((response) => response.json())
             .then(({ betAmount }) => ({
                 bet: Number(formatUnits(betAmount, 6))
             }));
 
-        const contractPromise2 = fetch(`${process.env.REACT_APP_SERVER_URL}/api/contract/getResultOfBettingOption/${eventInfo.bettingOptions[i]}`)
+        const contractPromise2 = fetch(`${process.env.REACT_APP_BACKEND_URL}/contract/getResultOfBettingOption/${eventInfo.bettingOptions[i]}`)
             .then((response) => response.json())
             .then(({ result }) => ({
                 result: Number(result)
@@ -28,4 +52,4 @@ export const getBettingOptionsPromise = (eventInfo: any) => {
 
 export function roundToTwo(num: number) {
     return Number(num.toFixed(2));
-  }
+}

@@ -8,10 +8,10 @@ import { setOpenLoginModal } from "store/slices/appSlice";
 import { Auth } from "types";
 
 interface Props {
-	handleLoggedIn: (auth: Auth) => void;
+    handleLoggedIn: (auth: Auth) => void;
 }
 
-const LoginModal = ({handleLoggedIn}: Props) => {
+const LoginModal = ({ handleLoggedIn }: Props) => {
     const [email, setEmail] = React.useState("");
     const { openLoginModal } = useSelector((state: RootState) => state.appKey);
 
@@ -23,67 +23,53 @@ const LoginModal = ({handleLoggedIn}: Props) => {
     const [tryLogin, setTryLogin] = React.useState(false);
 
     const handleSignMessage = async ({
-		publicAddress,
-		nonce,
-	}: {
-		publicAddress: string;
-		nonce: string;
-	}) => {
-		try {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore because web3 is defined here.
-			if (!publicAddress) {
-				throw new Error(
-					'There is issue: address or chain is missing.'
-				);
-			} else {
-				const message = `I am signing my one-time nonce: ${nonce}`;
-
-				const signature = await signMessageAsync({ message })
-
-				return { publicAddress, signature };
-			}
-		} catch (err) {
-			debugger
-			throw new Error(
-				'You need to sign the message to be able to log in.'
-			);
-		}
-	};
+        publicAddress,
+        nonce,
+    }: {
+        publicAddress: string;
+        nonce: string;
+    }) => {
+        try {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore because web3 is defined here.
+            if (!publicAddress) {
+                throw new Error(
+                    'There is issue: address or chain is missing.'
+                );
+            } else {
+                const message = `I am signing my one-time nonce: ${nonce}`;
+                const signature = await signMessageAsync({ message })
+                return { publicAddress, signature };
+            }
+        } catch (err) {
+            debugger
+            throw new Error(
+                'You need to sign the message to be able to log in.'
+            );
+        }
+    };
 
     const handleAuthenticate = ({
-		publicAddress,
-		signature,
-	}: {
-		publicAddress: string;
-		signature: `0x${string}`;
-	}) =>
-		fetch(`${process.env.REACT_APP_BACKEND_URL}/auth`, {
-			body: JSON.stringify({ publicAddress, signature }),
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			method: 'POST',
-		}).then((response) => response.json());
+        publicAddress,
+        signature,
+    }: {
+        publicAddress: string;
+        signature: `0x${string}`;
+    }) =>
+        apis.Authenticate({ publicAddress, signature })
+            .then((response: any) => response);
 
     const loginWithEmail = () => {
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/users?publicAddress=${email}`)
-            .then((response) => response.json())
-            // If yes, retrieve it. If no, create it.
-            .then((users) =>
-                users.length ? users[0] : handleSignup(email)
-            )
-            .then(handleSendMail);
+        apis.GetUser(email)
+            .then((response: any) => {
+                const { users } = response;
+                return users.length ? users[0] : handleSignup(email);
+            }).then(handleSendMail)
     }
 
     const handleSignup = (publicAddress: string) =>
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/users`, {
-            body: JSON.stringify({ publicAddress }),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            method: 'POST'
-        }).then((response) => response.json());
+        apis.SignUp({ publicAddress })
+            .then((response: any) => response);
 
     const handleSendMail = async ({
         publicAddress,
@@ -92,24 +78,14 @@ const LoginModal = ({handleLoggedIn}: Props) => {
         publicAddress: string;
         nonce: string;
     }) => {
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/email/send`, {
-            body: JSON.stringify({ publicAddress, nonce }),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            method: 'POST',
-        })
-            .then((response) => {
-                debugger
-                if (response.status != 200) {
+        apis.SendEmail({ publicAddress, nonce })
+            .then((response: any) => {
+                if (response.status !== 200) {
                     throw new Error('withdraw failed')
-
                 } else {
-                    return response.json()
+                    return response
                 }
-            })
-            .catch(err => {
-                debugger
+            }).catch(err => {
                 console.error(err)
             });
     };
@@ -152,11 +128,11 @@ const LoginModal = ({handleLoggedIn}: Props) => {
                 />
                 <Button type='text' onClick={loginWithEmail} >Login with Email</Button>
                 <Row style={{ justifyContent: 'space-between' }}>
-                    {connectors.map((connector: any) => {
-                        if (connector.type == "injected")
+                    {connectors.map((connector: any, index: number) => {
+                        if (connector.type === "injected")
                             return null
                         else return (
-                            <Col>
+                            <Col key={index}>
                                 <Button
                                     key={connector.uid}
                                     onClick={() => connect({ connector }, {

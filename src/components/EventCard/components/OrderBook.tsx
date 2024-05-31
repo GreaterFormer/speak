@@ -1,19 +1,14 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { BUY, SELL, mergeElements, roundToTwo } from '../../constant';
-import { setShowNo } from '../../store/slices/orderSlice';
+import { mergeElements, roundToTwo } from 'utils';
+import { setShowNo } from 'store/slices/orderSlice';
 import { formatUnits } from 'ethers';
-
 import { Row, Tabs } from 'antd';
 import { FallOutlined, RiseOutlined } from '@ant-design/icons';
-import { RootState } from '../../store';
+import { RootState } from 'store';
 
-/*
-    orderbook must show the current event's orders.
-    when user click buy, need to make order.
-*/
 
-function CustomTabPanel(props: any) {
+const CustomTabPanel = (props: any) => {
     const { children, value, index, ...other } = props;
 
     return (
@@ -33,7 +28,7 @@ function CustomTabPanel(props: any) {
     );
 }
 
-export default function OrderBook() {
+const OrderBook = () => {
     const dispatch = useDispatch();
     const [tabKey, setTabKey] = useState("yes");
     const { orders, showNo } = useSelector((state: RootState) => state.orderKey);
@@ -43,7 +38,6 @@ export default function OrderBook() {
     const [spread, setSpread] = useState(0);
 
     useEffect(() => {
-        console.log(`orders redrawing`)
         if (!orders || !orders.length) {
             setBuyOrders([]);
             setSellOrders([]);
@@ -51,8 +45,7 @@ export default function OrderBook() {
         }
         let _yesOrders = orders.map(order => {
             const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest } = order;
-            let price = (side == 0 ? makerAmount * 100 / takerAmount : takerAmount * 100 / makerAmount);
-
+            let price = (side === 0 ? makerAmount * 100 / takerAmount : takerAmount * 100 / makerAmount);
 
             if (tokenId == selectedBettingOption?.yesTokenId)
                 return {
@@ -80,9 +73,9 @@ export default function OrderBook() {
             })
         }
 
-        const buyOrders = mergeElements(_orders.filter(order => order.side == 0).sort((a, b) => b.price - a.price));
+        const buyOrders = mergeElements(_orders.filter(order => order.side === 0).sort((a, b) => b.price - a.price));
         setBuyOrders(buyOrders);
-        const sellOrders = mergeElements(_orders.filter(order => order.side == 1).sort((a, b) => a.price - b.price));
+        const sellOrders = mergeElements(_orders.filter(order => order.side === 1).sort((a, b) => a.price - b.price));
         setSellOrders(sellOrders);
         if (sellOrders.length > 0 && buyOrders.length > 0) {
             const spread = sellOrders.at(-1).price - buyOrders[0].price;
@@ -92,12 +85,9 @@ export default function OrderBook() {
         }
     }, [orders, showNo]);
 
-    // const handleChange = (_: any, newValue: number) => {
-    //     dispatch(setShowNo(!!newValue));
-    // };
-
     const handleChange = (activeKey: string) => {
         dispatch(setShowNo(activeKey === "yes" ? true : false));
+        setTabKey(activeKey);
     }
 
     const renderOrders = ({ orders, isBuy = true }: any) => {
@@ -124,7 +114,7 @@ export default function OrderBook() {
     return (
         <Row style={{ width: '100%', flexDirection: 'column' }}>
             <Row style={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs defaultActiveKey={tabKey} onChange={handleChange} type="card"
+                <Tabs activeKey={tabKey} onChange={handleChange} type="card"
                     items={[
                         { label: "Trade Yes", key: "yes", children: <></>, icon: <RiseOutlined /> },
                         { label: "Trade No", key: "no", children: <></>, icon: <FallOutlined /> }
@@ -216,3 +206,5 @@ export default function OrderBook() {
         </Row >
     );
 }
+
+export default OrderBook;

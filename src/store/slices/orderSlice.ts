@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apis } from "apis";
-import { LogInfo, OrderInfo } from "../../types";
-import { BUY } from "../../constant";
+import { LogInfo, OrderInfo } from "types";
+import { BUY } from "constant";
 
 const orderBookState = {
     orders: [] as OrderInfo[],
@@ -35,8 +35,7 @@ const orderSlice = createSlice({
             }
         },
         removeOrder: (state, action) => {
-            console.log(action.payload);
-            state.orders = state.orders.filter(order => order._id != action.payload._id);
+            state.orders = state.orders.filter(order => order._id !== action.payload._id);
         },
         setShowNo: (state, action) => {
             state.showNo = action.payload;
@@ -55,7 +54,7 @@ const orderSlice = createSlice({
             })
             .addCase(fetchOrders.fulfilled, (state, action: any) => {
                 state.loading = false;
-                if (action.payload.status == 200) {
+                if (action.payload.status === 200) {
                     state.orders = action.payload.orders;
                 }
             })

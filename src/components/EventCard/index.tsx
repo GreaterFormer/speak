@@ -1,44 +1,32 @@
 import React, { useEffect } from "react";
-import { Flex, Card, Avatar, Typography, Button, Divider, Row, Col } from "antd";
+import { Flex, Card, Avatar, Typography, Button, Divider, Row, Collapse, Tabs } from "antd";
+import { useDispatch, useSelector } from "react-redux";
 
 import Icon, {
   ClockCircleOutlined,
   StarOutlined,
   LinkOutlined,
-  DollarOutlined,
   UpOutlined,
   DownOutlined,
+  CheckCircleOutlined
 } from "@ant-design/icons";
 import { selectBettingOption } from "store/slices/eventSlice";
 import { fetchOrders, setBettingOptionLogs } from "store/slices/orderSlice";
 import { apis } from "apis";
 
-import ChartArea from "./ChartArea";
+import ChartArea from "./components/ChartArea";
+import OrderBook from "./components/OrderBook";
+import MyOrders from "./components/MyOrders";
+import Positions from "./components/Positions";
+import BettingOptionButtons from "./components/BettingOptionButtons";
 
 // Assets
 import Logo from "assets/images/logo.png";
 import LogoTitle from "assets/images/logo-title.png";
 import { ReactComponent as CupSvg } from "assets/images/svgs/cup.svg";
-import { colors } from "theme";
-import { useDispatch, useSelector } from "react-redux";
 
 import { RootState } from "store";
-import OrderBook from "./OrderBook";
 
-// const rowStyle = {
-//   borderTop: "1px solid #444",
-//   borderBottom: "1px solid #444",
-// };
-
-// const data = [
-//   {
-//     avatar:
-//       "https://polymarket.com/_next/image?url=https%3A%2F%2Fpolymarket-upload.s3.us-east-2.amazonaws.com%2Fceltics.png&w=256&q=100",
-//     name: "Boston Celtics",
-//     percent: 35,
-//     amount: 31233,
-//   },
-// ];
 
 interface MarketListProps {
   eventInfo: any
@@ -46,43 +34,16 @@ interface MarketListProps {
 
 const MarketList: React.FC<MarketListProps> = ({ eventInfo }) => {
   const dispatch = useDispatch();
-  const [hoverIndex, setHoverIndex] = React.useState(-1);
-  const [currentIndex, setCurrentIndex] = React.useState(-1);
-
   const [moreOrLessSwitch, setMoreOrLessSwitch] = React.useState(true);
   const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
   const { orders } = useSelector((state: RootState) => state.orderKey);
-
-  const MarketItem = ({
-    avatar,
-    name,
-    amount,
-  }: {
-    avatar: string;
-    name: string;
-    amount: number;
-  }) => (
-    <Flex align="center" gap={10}>
-      <Avatar src={avatar} size={40} />
-      <Flex vertical>
-        <Typography.Title level={5} style={{ margin: 0 }}>
-          {name}
-        </Typography.Title>
-        <Flex gap={5} align="center">
-          <Typography.Text style={{ fontSize: 13, color: colors.grey }}>
-            ${amount.toLocaleString()}
-          </Typography.Text>
-          <DollarOutlined style={{ color: colors.grey }} />
-        </Flex>
-      </Flex>
-    </Flex>
-  );
+  const [choice, setChoice] = React.useState(0);
 
   useEffect(() => {
     if (selectedBettingOption) {
       dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption.ipfsUrl }) as any);
     }
-  }, [selectedBettingOption])
+  }, [selectedBettingOption, dispatch])
 
 
   useEffect(() => {
@@ -94,13 +55,13 @@ const MarketList: React.FC<MarketListProps> = ({ eventInfo }) => {
       }
     }
     getResult();
-  }, [selectedBettingOption, orders]);
+  }, [selectedBettingOption, orders, dispatch]);
 
   useEffect(() => {
     if (eventInfo) {
       dispatch(selectBettingOption(eventInfo.bettingOptions[0]) as any);
     }
-  }, [eventInfo])
+  }, [eventInfo, dispatch]);
 
   return (
     <Card
@@ -143,77 +104,98 @@ const MarketList: React.FC<MarketListProps> = ({ eventInfo }) => {
           </Flex>
         </Flex>
       </Flex>
-
-      <ChartArea />
-      {/* <Positions /> */}
-      {/* <MyOrders /> */}
-
-      <Divider orientation="left">Order Book</Divider>
-      <OrderBook />
-
-      {/* {data.map((item, index) => (
-        <Row
-          key={index}
-          onClick={() => {
-            if (currentIndex === -1) setCurrentIndex(index);
-            else if (currentIndex === index) setCurrentIndex(-1);
-            else setCurrentIndex(index);
-          }}
-          onMouseEnter={() => setHoverIndex(index)}
-          onMouseLeave={() => setHoverIndex(-1)}
-          style={{
-            cursor: "pointer",
-            backgroundColor: hoverIndex === index ? "#222222" : undefined,
-          }}
-        >
-          <Col
-            span={8}
-            style={{ borderBottom: "1px solid #444", padding: "20px 0px" }}
-          >
-            <MarketItem
-              amount={item.amount}
-              avatar={item.avatar}
-              name={item.name}
+      <Divider />
+      <Row>
+        {(eventInfo && eventInfo.bettingOptions.length > 1) ?
+          <Collapse
+            style={{ width: '100%' }}
+            accordion={true}
+            items={eventInfo.bettingOptions.map((bettingOption: any) => {
+              return {
+                key: bettingOption.ipfsUrl,
+                label: (
+                  <Flex justify="space-between" onClick={() => {
+                    setChoice(0);
+                    dispatch(selectBettingOption(bettingOption) as any)
+                  }
+                  }>
+                    <Flex gap={15} align="center">
+                      {bettingOption.image ? (
+                        <Avatar
+                          shape="circle"
+                          size={50}
+                          src={`https://gateway.pinata.cloud/ipfs/${bettingOption.image}`}
+                        />
+                      ) : null}
+                      <Flex vertical>
+                        <Typography.Title level={5} style={{ margin: 0 }}>{bettingOption.title}</Typography.Title>
+                        <Typography.Title level={5} style={{ margin: 0 }}>${bettingOption.bet} Bet</Typography.Title>
+                      </Flex>
+                    </Flex>
+                    {bettingOption.result === 0 ? (
+                      <Flex align="center">
+                        <BettingOptionButtons bettingOption={bettingOption} />
+                      </Flex>
+                    ) : (
+                      <Flex align="center">
+                        <CheckCircleOutlined /> Result is {bettingOption.result == 1 ? "Yes" : "No"}
+                      </Flex>
+                    )}
+                  </Flex>
+                ),
+                children: (
+                  <Tabs
+                    style={{ width: '100%' }}
+                    activeKey={String(choice)}
+                    onChange={(key: string) => setChoice(Number(key))}
+                    items={[
+                      {
+                        key: '0',
+                        label: 'ORDER BOOK',
+                        children: <OrderBook />
+                      },
+                      {
+                        key: '1',
+                        label: 'GRAPH',
+                        children: <ChartArea />
+                      },
+                      {
+                        key: '2',
+                        label: 'MY ORDERS',
+                        children: <MyOrders />
+                      },
+                      {
+                        key: '3',
+                        label: 'POSITIONS',
+                        children: <Positions />
+                      }
+                    ]}
+                  />
+                ),
+                showArrow: false,
+              }
+            })} />
+          :
+          <Row style={{ width: '100%' }}>
+            <ChartArea />
+            <Positions />
+            <Collapse
+              style={{ width: '100%' }}
+              accordion={true}
+              items={[
+                {
+                  key: '0',
+                  label: 'ORDER BOOK',
+                  children: <OrderBook />,
+                  showArrow: false
+                }
+              ]}
             />
-          </Col>
-          <Col
-            span={8}
-            style={{
-              borderBottom: "1px solid #444",
-              padding: "20px 0px",
-              textAlign: "center",
-            }}
-          >
-            <Typography.Title level={2} style={{ margin: 0 }}>
-              {item.percent}%
-            </Typography.Title>
-          </Col>
-          <Col
-            span={8}
-            style={{ borderBottom: "1px solid #444", padding: "20px 0px" }}
-          >
-            <Flex gap={10} justify="flex-end">
-              <Button type="primary" size="large">
-                Yes 44¢
-              </Button>
-              <Button size="large">No 57¢</Button>
-            </Flex>
-          </Col>
-          <Col
-            span={24}
-            style={{
-              textAlign: "center",
-              height: currentIndex === index ? 50 : 0,
-              overflow: "hidden",
-              transition: "height 0.3s ease-out",
-            }}
-          >
-            Content
-          </Col>
-        </Row>
-      ))} */}
-
-      <Flex vertical justify="center" gap={5} style={{ marginTop: 20 }}>
+            <MyOrders />
+          </Row>
+        }
+      </Row>
+      <Flex vertical justify="center" gap={5}>
         <Divider orientation="left">About</Divider>
         {
           moreOrLessSwitch ? (<Typography.Text style={{ maxHeight: '2.5rem', overflow: 'hidden' }}>
@@ -222,10 +204,8 @@ const MarketList: React.FC<MarketListProps> = ({ eventInfo }) => {
             {eventInfo?.detail}
           </Typography.Text>)
         }
-
         <Button type="text" onClick={() => setMoreOrLessSwitch(!moreOrLessSwitch)}>Show {moreOrLessSwitch ? "more" : "less"} {moreOrLessSwitch ? <DownOutlined /> : <UpOutlined />}</Button>
       </Flex>
-
     </Card>
   );
 };
